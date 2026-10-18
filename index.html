@@ -30,7 +30,7 @@
     <section class="wheel-area" aria-label="Wheel">
       <div class="wheel-wrap">
         <div class="pointer" aria-hidden="true"></div>
-        <canvas id="wheel" width="720" height="720" aria-hidden="true"></canvas>
+        <canvas id="wheel" width="1280" height="1280" aria-hidden="true"></canvas>
         <button id="spin" class="spin-btn" type="button">Turn</button>
       </div>
       <p class="hint">Take a breath, then tap the center or press <kbd>Space</kbd></p>
@@ -46,9 +46,7 @@
         <p class="eyebrow">A word for you, right now</p>
         <h2 class="word" id="word"></h2>
         <p class="pron"><span id="pos">verb</span> · <span id="forms"></span></p>
-        <ol class="defs">
-          <li id="definition"></li>
-        </ol>
+        <p class="def" id="definition"></p>
         <div class="cue">
           <p class="cue-label">A kind word</p>
           <p id="cue"></p>
@@ -71,12 +69,6 @@
 
   <footer class="foot">
     <p class="foot-line">Made for anyone who needs a gentle word today. Take what you need, and pass the kindness on.</p>
-    <ul class="palette" aria-label="What the colors mean">
-      <li><i style="background:var(--rose)"></i>Rose for compassion</li>
-      <li><i style="background:#8fae8b"></i>Sage for healing</li>
-      <li><i style="background:#a99bc9"></i>Lavender for calm</li>
-      <li><i style="background:var(--gold)"></i>Gold for hope</li>
-    </ul>
   </footer>
 
   <script src="verbs.js"></script>

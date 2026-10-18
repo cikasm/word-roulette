@@ -1,8 +1,7 @@
 (() => {
-  const SEGMENTS = 12;
-  const SEG = (Math.PI * 2) / SEGMENTS;
   const HISTORY_KEY = "word-roulette-history";
   const HISTORY_MAX = 12;
+  const TAU = Math.PI * 2;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const canvas = document.getElementById("wheel");
@@ -15,74 +14,113 @@
   const empty = document.getElementById("entry-empty");
   const historyList = document.getElementById("history-list");
 
+  // Every verb sits on the wheel, in a shuffled order.
+  const wheelWords = shuffle([...VERBS]);
+  const SEGMENTS = wheelWords.length;
+  const SEG = TAU / SEGMENTS;
+
   let rotation = 0;
   let spinning = false;
-  let current = null;
-  let wheelWords = pickWords(SEGMENTS);
 
-  function pickWords(n, mustInclude) {
-    const pool = VERBS.filter((v) => v !== mustInclude);
-    for (let i = pool.length - 1; i > 0; i--) {
+  function shuffle(list) {
+    for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+      [list[i], list[j]] = [list[j], list[i]];
     }
-    const out = pool.slice(0, n);
-    if (mustInclude) out[Math.floor(Math.random() * n)] = mustInclude;
-    return out;
+    return list;
   }
 
   function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  // Match the canvas to its on-screen size so the small labels stay crisp.
+  function resize() {
+    const px = Math.round(canvas.clientWidth * (window.devicePixelRatio || 1));
+    if (px && canvas.width !== px) {
+      canvas.width = canvas.height = px;
+      draw();
+    }
+  }
+
   function draw() {
     const size = canvas.width;
     const c = size / 2;
-    const r = c - 6;
-    const colors = ["--seg-rose", "--seg-sage", "--seg-lavender", "--seg-gold"].map(cssVar);
+    const r = c * 0.985;
+    const quadrants = ["--seg-rose", "--seg-sage", "--seg-lavender", "--seg-gold"].map(cssVar);
     const text = cssVar("--seg-text");
-    const surface = cssVar("--surface");
+    const line = cssVar("--line");
     const gold = cssVar("--gold");
+    const rose = cssVar("--rose");
+    const active = indexAtPointer(rotation);
+    const fontSize = size * 0.0175;
 
     ctx.clearRect(0, 0, size, size);
     ctx.save();
     ctx.translate(c, c);
     ctx.rotate(rotation - Math.PI / 2);
 
-    for (let i = 0; i < SEGMENTS; i++) {
-      const a0 = i * SEG;
+    // Four soft color fields, one per quarter of the words.
+    const perQuadrant = SEGMENTS / quadrants.length;
+    quadrants.forEach((color, q) => {
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.arc(0, 0, r, a0, a0 + SEG);
+      ctx.arc(0, 0, r, q * perQuadrant * SEG, (q + 1) * perQuadrant * SEG);
       ctx.closePath();
-      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = surface;
-      ctx.lineWidth = 3;
-      ctx.stroke();
+    });
 
-      ctx.save();
-      ctx.rotate(a0 + SEG / 2);
-      ctx.fillStyle = text;
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      const word = wheelWords[i].word;
-      const fontSize = word.length > 9 ? 22 : word.length > 7 ? 26 : 30;
-      ctx.font = `500 ${fontSize}px Fraunces, Georgia, serif`;
-      ctx.fillText(word, r - 28, 0);
-      ctx.restore();
+    // Fine tick marks around the rim, like a dial.
+    ctx.strokeStyle = line;
+    ctx.lineWidth = Math.max(1, size * 0.0015);
+    for (let i = 0; i < SEGMENTS; i++) {
+      const a = i * SEG;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * r * 0.965, Math.sin(a) * r * 0.965);
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      ctx.stroke();
     }
 
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.lineWidth = 3;
+    ctx.textBaseline = "middle";
+    for (let i = 0; i < SEGMENTS; i++) {
+      const angle = i * SEG + SEG / 2;
+      // Labels on the left half of the screen are turned around so none read upside down.
+      const flip = Math.cos(angle + rotation - Math.PI / 2) < 0;
+      ctx.save();
+      ctx.rotate(flip ? angle + Math.PI : angle);
+      ctx.textAlign = flip ? "left" : "right";
+      if (i === active) {
+        ctx.fillStyle = rose;
+        ctx.globalAlpha = 1;
+        ctx.font = `600 ${fontSize * 1.15}px Fraunces, Georgia, serif`;
+      } else {
+        ctx.fillStyle = text;
+        ctx.globalAlpha = 0.62;
+        ctx.font = `400 ${fontSize}px Fraunces, Georgia, serif`;
+      }
+      ctx.fillText(wheelWords[i].word, flip ? -r * 0.935 : r * 0.935, 0);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+
+    // Hairline inner ring and gold outer ring.
+    ctx.lineWidth = Math.max(1, size * 0.0015);
     ctx.strokeStyle = gold;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.3, 0, TAU);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = Math.max(1.5, size * 0.003);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, TAU);
     ctx.stroke();
     ctx.restore();
   }
 
   function indexAtPointer(rot) {
-    const norm = ((-rot % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const norm = ((-rot % TAU) + TAU) % TAU;
     return Math.floor(norm / SEG) % SEGMENTS;
   }
 
@@ -96,47 +134,37 @@
     spinBtn.disabled = true;
     againBtn.disabled = true;
 
-    const nextWords = pickWords(SEGMENTS);
     const target = Math.floor(Math.random() * SEGMENTS);
-    const jitter = (Math.random() - 0.5) * SEG * 0.7;
-    const turns = reduceMotion ? 1 : 6 + Math.floor(Math.random() * 3);
-    const duration = reduceMotion ? 900 : 4800 + Math.random() * 900;
+    const jitter = (Math.random() - 0.5) * SEG * 0.6;
+    const turns = reduceMotion ? 1 : 5 + Math.floor(Math.random() * 3);
+    const duration = reduceMotion ? 900 : 5200 + Math.random() * 900;
 
     // Final rotation lands the center of `target` (plus jitter) under the pointer.
     const desired = -(target + 0.5) * SEG + jitter;
-    const tau = Math.PI * 2;
-    let end = rotation + turns * tau;
-    end += ((desired - end) % tau + tau) % tau;
+    let end = rotation + turns * TAU;
+    end += ((desired - end) % TAU + TAU) % TAU;
 
     const start = rotation;
     const t0 = performance.now();
-    let swapped = false;
 
     function frame(now) {
       const t = Math.min(1, (now - t0) / duration);
       rotation = start + (end - start) * easeOutQuart(t);
-      // Swap in fresh words once the wheel is a blur.
-      if (!swapped && t > 0.08) {
-        wheelWords = nextWords;
-        swapped = true;
-      }
       draw();
       if (t < 1) {
         requestAnimationFrame(frame);
       } else {
-        rotation = end % tau;
+        rotation = end % TAU;
         spinning = false;
         spinBtn.disabled = false;
         againBtn.disabled = false;
-        const verb = wheelWords[indexAtPointer(rotation)];
-        show(verb, true);
+        show(wheelWords[indexAtPointer(rotation)], true);
       }
     }
     requestAnimationFrame(frame);
   }
 
   function show(verb, record) {
-    current = verb;
     document.getElementById("word").textContent = verb.word;
     document.getElementById("forms").textContent = verb.forms;
     document.getElementById("definition").textContent = verb.def;
@@ -149,7 +177,13 @@
     card.style.animation = "";
     history.replaceState(null, "", "#" + encodeURIComponent(verb.word));
     document.title = `${verb.word} · pocket word`;
-    if (record) addToHistory(verb.word);
+    if (record) {
+      addToHistory(verb.word);
+      const box = card.getBoundingClientRect();
+      if (box.bottom > window.innerHeight) {
+        card.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+      }
+    }
   }
 
   function loadHistory() {
@@ -200,7 +234,10 @@
   }
 
   spinBtn.addEventListener("click", spin);
-  againBtn.addEventListener("click", spin);
+  againBtn.addEventListener("click", () => {
+    canvas.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    spin();
+  });
 
   copyBtn.addEventListener("click", async () => {
     const url = location.href;
@@ -246,17 +283,18 @@
     draw();
   });
 
-  // A shared link (#word) opens straight to that entry.
+  // A shared link (#word) opens straight to that entry, with the wheel turned to it.
   const shared = decodeURIComponent(location.hash.slice(1));
   const sharedVerb = VERBS.find((v) => v.word === shared);
   if (sharedVerb) {
-    wheelWords = pickWords(SEGMENTS, sharedVerb);
     rotation = -(wheelWords.indexOf(sharedVerb) + 0.5) * SEG;
     show(sharedVerb, false);
   }
 
   renderHistory();
+  resize();
   draw();
+  new ResizeObserver(resize).observe(canvas);
   // Redraw once the web font is ready so wheel labels use it.
   if (document.fonts) document.fonts.ready.then(draw);
 })();
