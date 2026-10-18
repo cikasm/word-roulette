@@ -21,6 +21,7 @@
 
   let rotation = 0;
   let spinning = false;
+  let landed = null; // index of the word the wheel stopped on
 
   function shuffle(list) {
     for (let i = list.length - 1; i > 0; i--) {
@@ -47,12 +48,10 @@
     const size = canvas.width;
     const c = size / 2;
     const r = c * 0.985;
-    const quadrants = ["--seg-rose", "--seg-sage", "--seg-lavender", "--seg-gold"].map(cssVar);
     const text = cssVar("--seg-text");
     const line = cssVar("--line");
     const gold = cssVar("--gold");
     const rose = cssVar("--rose");
-    const active = indexAtPointer(rotation);
     const fontSize = size * 0.0175;
 
     ctx.clearRect(0, 0, size, size);
@@ -60,16 +59,19 @@
     ctx.translate(c, c);
     ctx.rotate(rotation - Math.PI / 2);
 
-    // Four soft color fields, one per quarter of the words.
-    const perQuadrant = SEGMENTS / quadrants.length;
-    quadrants.forEach((color, q) => {
+    // One calm face; color appears only on the word the wheel stopped on.
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, TAU);
+    ctx.fillStyle = cssVar("--wheel");
+    ctx.fill();
+    if (landed !== null) {
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.arc(0, 0, r, q * perQuadrant * SEG, (q + 1) * perQuadrant * SEG);
+      ctx.arc(0, 0, r, landed * SEG, (landed + 1) * SEG);
       ctx.closePath();
-      ctx.fillStyle = color;
+      ctx.fillStyle = cssVar("--wheel-hi");
       ctx.fill();
-    });
+    }
 
     // Fine tick marks around the rim, like a dial.
     ctx.strokeStyle = line;
@@ -90,7 +92,7 @@
       ctx.save();
       ctx.rotate(flip ? angle + Math.PI : angle);
       ctx.textAlign = flip ? "left" : "right";
-      if (i === active) {
+      if (i === landed) {
         ctx.fillStyle = rose;
         ctx.globalAlpha = 1;
         ctx.font = `600 ${fontSize * 1.15}px Fraunces, Georgia, serif`;
@@ -133,6 +135,7 @@
     spinning = true;
     spinBtn.disabled = true;
     againBtn.disabled = true;
+    landed = null;
 
     const target = Math.floor(Math.random() * SEGMENTS);
     const jitter = (Math.random() - 0.5) * SEG * 0.6;
@@ -158,7 +161,9 @@
         spinning = false;
         spinBtn.disabled = false;
         againBtn.disabled = false;
-        show(wheelWords[indexAtPointer(rotation)], true);
+        landed = indexAtPointer(rotation);
+        draw();
+        show(wheelWords[landed], true);
       }
     }
     requestAnimationFrame(frame);
@@ -287,7 +292,8 @@
   const shared = decodeURIComponent(location.hash.slice(1));
   const sharedVerb = VERBS.find((v) => v.word === shared);
   if (sharedVerb) {
-    rotation = -(wheelWords.indexOf(sharedVerb) + 0.5) * SEG;
+    landed = wheelWords.indexOf(sharedVerb);
+    rotation = -(landed + 0.5) * SEG;
     show(sharedVerb, false);
   }
 
