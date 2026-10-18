@@ -222,7 +222,7 @@
     if (!historyWords.length) {
       const li = document.createElement("li");
       li.className = "empty";
-      li.textContent = "Nothing yet. The words you receive will rest here.";
+      li.textContent = "The words you receive will rest here.";
       historyList.appendChild(li);
       return;
     }
