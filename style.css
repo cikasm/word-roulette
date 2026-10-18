@@ -166,17 +166,17 @@ h1 em { font-style: italic; color: var(--rose); }
 
 /* Layout */
 .layout {
-  max-width: 720px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 40px 16px 24px;
-  display: flex;
-  flex-direction: column;
+  padding: 40px 24px 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 56px;
   align-items: center;
-  gap: 48px;
 }
 
-@media (max-width: 600px) {
-  .layout { gap: 36px; padding-top: 28px; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; justify-items: center; gap: 36px; padding: 28px 16px 24px; }
   .top { padding-top: 64px; }
 }
 
@@ -185,7 +185,7 @@ h1 em { font-style: italic; color: var(--rose); }
 
 .wheel-wrap {
   position: relative;
-  width: min(100%, 640px);
+  width: min(100%, 560px);
   aspect-ratio: 1;
   margin: 0 auto;
   padding: 12px;
@@ -256,7 +256,7 @@ kbd {
 }
 
 /* Dictionary entry */
-.entry { width: 100%; max-width: 560px; text-align: center; }
+.entry { width: 100%; max-width: 520px; margin: 0 auto; text-align: center; }
 
 .eyebrow {
   letter-spacing: 0.03em;
