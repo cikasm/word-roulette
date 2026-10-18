@@ -1,4 +1,4 @@
-# Word Roulette
+# pocket word
 
 A small dictionary of kind words. Turn the wheel to receive a gentle verb, its meaning, and a kind word to carry with you.
 

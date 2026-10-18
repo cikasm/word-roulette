@@ -71,6 +71,9 @@
 
 * { box-sizing: border-box; }
 
+/* Form controls don't inherit text-transform by default. */
+button { text-transform: inherit; }
+
 html, body { margin: 0; }
 
 body {
@@ -83,6 +86,7 @@ body {
   color: var(--ink);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   line-height: 1.6;
+  text-transform: lowercase;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
@@ -249,9 +253,8 @@ kbd {
 .entry { min-height: 340px; display: flex; flex-direction: column; justify-content: center; }
 
 .eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--gold);
   margin: 0 0 14px;
@@ -330,9 +333,8 @@ kbd {
 }
 
 .cue-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
   font-weight: 600;
   color: var(--rose);
   margin: 0 0 6px;

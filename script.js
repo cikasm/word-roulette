@@ -148,12 +148,8 @@
     void card.offsetWidth;
     card.style.animation = "";
     history.replaceState(null, "", "#" + encodeURIComponent(verb.word));
-    document.title = `${capitalize(verb.word)} · Word Roulette`;
+    document.title = `${verb.word} · pocket word`;
     if (record) addToHistory(verb.word);
-  }
-
-  function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   function loadHistory() {
