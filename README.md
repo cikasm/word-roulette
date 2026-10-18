@@ -17,3 +17,5 @@ Edit [`verbs.js`](verbs.js). Each entry looks like this:
 ## Hosting
 
 The site is served by GitHub Pages from the `main` branch root.
+
+When you change `style.css`, `verbs.js` or `script.js`, bump the `?v=` number on their links in `index.html` so visitors' browsers load the new version right away.
