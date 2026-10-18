@@ -1,7 +1,7 @@
 (() => {
   const SEGMENTS = 12;
   const SEG = (Math.PI * 2) / SEGMENTS;
-  const HISTORY_KEY = "verb-roulette-history";
+  const HISTORY_KEY = "word-roulette-history";
   const HISTORY_MAX = 12;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -148,7 +148,7 @@
     void card.offsetWidth;
     card.style.animation = "";
     history.replaceState(null, "", "#" + encodeURIComponent(verb.word));
-    document.title = `${capitalize(verb.word)} · Verb Roulette`;
+    document.title = `${capitalize(verb.word)} · Word Roulette`;
     if (record) addToHistory(verb.word);
   }
 
@@ -186,7 +186,7 @@
     if (!historyWords.length) {
       const li = document.createElement("li");
       li.className = "empty";
-      li.textContent = "Nothing yet. Your words will appear here.";
+      li.textContent = "Nothing yet. The words you receive will rest here.";
       historyList.appendChild(li);
       return;
     }
@@ -210,11 +210,11 @@
     const url = location.href;
     try {
       await navigator.clipboard.writeText(url);
-      copyBtn.textContent = "Copied!";
+      copyBtn.textContent = "Link copied";
     } catch {
       copyBtn.textContent = "Copy failed";
     }
-    setTimeout(() => (copyBtn.textContent = "Copy link"), 1600);
+    setTimeout(() => (copyBtn.textContent = "Share this word"), 1600);
   });
 
   clearBtn.addEventListener("click", () => {

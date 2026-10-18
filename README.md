@@ -1,6 +1,6 @@
-# Verb Roulette
+# Word Roulette
 
-A small digital dictionary with a spinning wheel. Spin it and you get a verb, its definition, and a short cue for what you might do next.
+A small dictionary of kind words. Turn the wheel to receive a gentle verb, its meaning, and a kind word to carry with you.
 
 ## Run locally
 
@@ -11,7 +11,7 @@ Open `index.html` in a browser. There's no build step.
 Edit [`verbs.js`](verbs.js). Each entry looks like this:
 
 ```js
-{ word: "begin", forms: "began, begun", def: "To start…", cue: "Pick the thing you keep postponing…" }
+{ word: "rest", forms: "rested, rested", def: "To lay down what you carry…", cue: "You have done enough for now…" }
 ```
 
 ## Hosting
