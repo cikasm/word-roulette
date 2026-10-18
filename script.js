@@ -39,10 +39,10 @@
     const size = canvas.width;
     const c = size / 2;
     const r = c - 6;
-    const colors = [cssVar("--seg-a"), cssVar("--seg-b")];
+    const colors = ["--seg-rose", "--seg-sage", "--seg-lavender", "--seg-gold"].map(cssVar);
     const text = cssVar("--seg-text");
-    const line = cssVar("--line");
-    const accent = cssVar("--accent");
+    const surface = cssVar("--surface");
+    const gold = cssVar("--gold");
 
     ctx.clearRect(0, 0, size, size);
     ctx.save();
@@ -55,10 +55,10 @@
       ctx.moveTo(0, 0);
       ctx.arc(0, 0, r, a0, a0 + SEG);
       ctx.closePath();
-      ctx.fillStyle = colors[i % 2];
+      ctx.fillStyle = colors[i % colors.length];
       ctx.fill();
-      ctx.strokeStyle = line;
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = surface;
+      ctx.lineWidth = 3;
       ctx.stroke();
 
       ctx.save();
@@ -67,16 +67,16 @@
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
       const word = wheelWords[i].word;
-      const fontSize = word.length > 8 ? 26 : 30;
-      ctx.font = `600 ${fontSize}px Fraunces, Georgia, serif`;
+      const fontSize = word.length > 9 ? 22 : word.length > 7 ? 26 : 30;
+      ctx.font = `500 ${fontSize}px Fraunces, Georgia, serif`;
       ctx.fillText(word, r - 28, 0);
       ctx.restore();
     }
 
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = gold;
     ctx.stroke();
     ctx.restore();
   }
@@ -230,7 +230,25 @@
     }
   });
 
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  // Light/dark toggle; remembers the choice, otherwise follows the system.
+  const root = document.documentElement;
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  let themeChosen = Boolean(root.dataset.theme);
+  if (!themeChosen) root.dataset.theme = darkQuery.matches ? "dark" : "light";
+  darkQuery.addEventListener("change", (e) => {
+    if (!themeChosen) root.dataset.theme = e.matches ? "dark" : "light";
+    draw();
+  });
+  document.getElementById("theme").addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    themeChosen = true;
+    try {
+      localStorage.setItem("word-roulette-theme", root.dataset.theme);
+    } catch {
+      /* storage unavailable; choice lasts for this visit */
+    }
+    draw();
+  });
 
   // A shared link (#word) opens straight to that entry.
   const shared = decodeURIComponent(location.hash.slice(1));
