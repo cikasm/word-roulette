@@ -318,9 +318,26 @@ kbd {
 
 .pron {
   color: var(--muted);
-  font-style: italic;
+  margin: 14px 0 4px;
+  font-size: 1.05rem;
+}
+
+.ipa {
+  font-family: "Inter", "Charis SIL", "Doulos SIL", "Lucida Grande", "Segoe UI", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.pos {
   font-family: "Fraunces", Georgia, serif;
-  margin: 12px 0 22px;
+  font-style: italic;
+  color: var(--rose);
+  margin-left: 6px;
+}
+
+.forms {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 22px;
 }
 
 .def {

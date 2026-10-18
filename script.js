@@ -171,7 +171,8 @@
 
   function show(verb, record) {
     document.getElementById("word").textContent = verb.word;
-    document.getElementById("forms").textContent = verb.forms;
+    document.getElementById("ipa").textContent = verb.ipa;
+    document.getElementById("forms").textContent = verb.forms.join(" · ");
     document.getElementById("definition").textContent = verb.def;
     document.getElementById("cue").textContent = verb.cue;
     empty.hidden = true;
